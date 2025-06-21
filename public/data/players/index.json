@@ -1,0 +1,50 @@
+[
+  {
+    "room_id": "9XRGRH",
+    "nickname": "test1",
+    "is_host": true,
+    "joined_at": "2025-06-21T15:54:29.771Z",
+    "active": true,
+    "id": "mc6f60b0k8q2n",
+    "is_typing": false,
+    "last_typed": null
+  },
+  {
+    "room_id": "9XRGRH",
+    "nickname": "test2",
+    "is_host": false,
+    "joined_at": "2025-06-21T15:54:47.202Z",
+    "active": true,
+    "id": "mc6f6dr6nlrjd",
+    "is_typing": false,
+    "last_typed": null
+  },
+  {
+    "room_id": "G61WAZ",
+    "nickname": "Hel",
+    "is_host": true,
+    "joined_at": "2025-06-21T16:04:43.521Z",
+    "active": true,
+    "id": "mc6fj5vl5x6ja"
+  },
+  {
+    "room_id": "UU461O",
+    "nickname": "Test 4",
+    "is_host": true,
+    "joined_at": "2025-06-21T16:06:07.574Z",
+    "active": true,
+    "id": "mc6fkyqech3qw",
+    "is_typing": false,
+    "last_typed": null
+  },
+  {
+    "room_id": "4D0CSN",
+    "nickname": "Test 4",
+    "is_host": true,
+    "joined_at": "2025-06-21T16:08:20.743Z",
+    "active": true,
+    "id": "mc6fnthj2hhnu",
+    "is_typing": false,
+    "last_typed": null
+  }
+]

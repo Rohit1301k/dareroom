@@ -1,0 +1,16 @@
+{
+  "name": "daremate",
+  "version": "1.0.0",
+  "description": "A web-based Truth or Dare game",
+  "main": "public/server.js",
+  "scripts": {
+    "start": "node public/server.js"
+  },
+  "keywords": [
+    "game",
+    "truth-or-dare",
+    "web-app"
+  ],
+  "author": "",
+  "license": "ISC"
+} 

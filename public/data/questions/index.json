@@ -1,0 +1,182 @@
+[
+  {
+    "category": "funny",
+    "type": "truth",
+    "text": "What is the most embarrassing thing you have ever done?",
+    "id": "mb1wk4en1178a"
+  },
+  {
+    "category": "funny",
+    "type": "truth",
+    "text": "What is the weirdest dream you have ever had?",
+    "id": "mb1wk4eyo9pbe"
+  },
+  {
+    "category": "funny",
+    "type": "truth",
+    "text": "What is the most childish thing you still do?",
+    "id": "mb1wk4f697upn"
+  },
+  {
+    "category": "funny",
+    "type": "dare",
+    "text": "Do your best impression of another player.",
+    "id": "mb1wk4fe8b0eu"
+  },
+  {
+    "category": "funny",
+    "type": "dare",
+    "text": "Send the 10th photo in your camera roll.",
+    "id": "mb1wk4fi1w2cl"
+  },
+  {
+    "category": "funny",
+    "type": "dare",
+    "text": "Speak in an accent for the next three rounds.",
+    "id": "mb1wk4fl9th4k"
+  },
+  {
+    "category": "romantic",
+    "type": "truth",
+    "text": "Who was your first crush and what were they like?",
+    "id": "mb1wk4fqomegg"
+  },
+  {
+    "category": "romantic",
+    "type": "truth",
+    "text": "What is your idea of a perfect date?",
+    "id": "mb1wk4fu272b5"
+  },
+  {
+    "category": "romantic",
+    "type": "truth",
+    "text": "What is the most romantic thing someone has done for you?",
+    "id": "mb1wk4fxhzpjj"
+  },
+  {
+    "category": "romantic",
+    "type": "dare",
+    "text": "Write a short love poem about the person to your right.",
+    "id": "mb1wk4g227v28"
+  },
+  {
+    "category": "romantic",
+    "type": "dare",
+    "text": "Send a romantic message to someone not in this game.",
+    "id": "mb1wk4g4ne0q6"
+  },
+  {
+    "category": "romantic",
+    "type": "dare",
+    "text": "Give a 30-second speech about why love is important.",
+    "id": "mb1wk4gabal4b"
+  },
+  {
+    "category": "strip",
+    "type": "truth",
+    "text": "Have you ever been caught not fully dressed?",
+    "id": "mb1wk4gdwzkdx"
+  },
+  {
+    "category": "strip",
+    "type": "truth",
+    "text": "What is the least amount of clothing you have worn in public?",
+    "id": "mb1wk4gfwauvg"
+  },
+  {
+    "category": "strip",
+    "type": "truth",
+    "text": "Have you ever gone skinny dipping?",
+    "id": "mb1wk4giuc6cf"
+  },
+  {
+    "category": "strip",
+    "type": "dare",
+    "text": "Remove one item of clothing for one round.",
+    "id": "mb1wk4gl68zhw"
+  },
+  {
+    "category": "strip",
+    "type": "dare",
+    "text": "Show everyone your tan lines if you have any.",
+    "id": "mb1wk4gpq77xd"
+  },
+  {
+    "category": "strip",
+    "type": "dare",
+    "text": "Play the next round with your shirt turned inside out.",
+    "id": "mb1wk4gtq8aab"
+  },
+  {
+    "category": "18+",
+    "type": "truth",
+    "text": "What is your biggest turn-on?",
+    "id": "mb1wk4gvxoqla"
+  },
+  {
+    "category": "18+",
+    "type": "truth",
+    "text": "What is your wildest fantasy?",
+    "id": "mb1wk4gyx4cvg"
+  },
+  {
+    "category": "18+",
+    "type": "truth",
+    "text": "Where is the strangest place you have been intimate?",
+    "id": "mb1wk4h14242e"
+  },
+  {
+    "category": "18+",
+    "type": "dare",
+    "text": "Demonstrate your go-to bedroom move on a pillow.",
+    "id": "mb1wk4h68rvk2"
+  },
+  {
+    "category": "18+",
+    "type": "dare",
+    "text": "Send the last spicy text you sent or received (blur out names).",
+    "id": "mb1wk4hava871"
+  },
+  {
+    "category": "18+",
+    "type": "dare",
+    "text": "Describe in detail the most intimate experience you have had.",
+    "id": "mb1wk4hd8v8vt"
+  },
+  {
+    "category": "emotional",
+    "type": "truth",
+    "text": "What is something you are afraid to tell people?",
+    "id": "mb1wk4hgb5hbl"
+  },
+  {
+    "category": "emotional",
+    "type": "truth",
+    "text": "When was the last time you cried and why?",
+    "id": "mb1wk4hjw8w9t"
+  },
+  {
+    "category": "emotional",
+    "type": "truth",
+    "text": "What is the biggest mistake you have made in a relationship?",
+    "id": "mb1wk4hopmsjw"
+  },
+  {
+    "category": "emotional",
+    "type": "dare",
+    "text": "Call someone you miss and tell them you are thinking of them.",
+    "id": "mb1wk4hrp7l1m"
+  },
+  {
+    "category": "emotional",
+    "type": "dare",
+    "text": "Share a personal insecurity with the group.",
+    "id": "mb1wk4huhhb9d"
+  },
+  {
+    "category": "emotional",
+    "type": "dare",
+    "text": "Write a heartfelt anonymous compliment to each player.",
+    "id": "mb1wk4hwn46xi"
+  }
+]

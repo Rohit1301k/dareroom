@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DareMate - Developer Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .table-container {
+            overflow-x: auto;
+            max-width: 100%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px 12px;
+            text-align: left;
+            border: 1px solid #374151;
+        }
+        th {
+            background-color: #374151;
+        }
+        tr:nth-child(even) {
+            background-color: #1f2937;
+        }
+        .json-view {
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .tab-active {
+            border-bottom: 2px solid #8b5cf6;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <h1 class="text-3xl font-bold">
+                    <span class="text-purple-500">Dare</span><span>Mate</span>
+                    <span class="text-lg text-gray-400 ml-2">Developer Dashboard</span>
+                </h1>
+                <a href="index.html" class="text-gray-400 hover:text-white flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to Game
+                </a>
+            </div>
+            
+            <!-- Database Actions -->
+            <div class="flex flex-col md:flex-row gap-4 mb-6">
+                <button id="refresh-btn" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded flex items-center justify-center">
+                    <i class="fas fa-sync-alt mr-2"></i> Refresh Data
+                </button>
+                <button id="export-btn" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded flex items-center justify-center">
+                    <i class="fas fa-download mr-2"></i> Export Database
+                </button>
+                <button id="clear-btn" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded flex items-center justify-center">
+                    <i class="fas fa-trash mr-2"></i> Clear All Data
+                </button>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-gray-800 p-4 rounded-lg shadow-md">
+                    <h3 class="text-gray-400 text-sm uppercase">Active Rooms</h3>
+                    <p class="text-2xl font-bold" id="active-rooms-count">-</p>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg shadow-md">
+                    <h3 class="text-gray-400 text-sm uppercase">Active Players</h3>
+                    <p class="text-2xl font-bold" id="active-players-count">-</p>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg shadow-md">
+                    <h3 class="text-gray-400 text-sm uppercase">Total Messages</h3>
+                    <p class="text-2xl font-bold" id="messages-count">-</p>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg shadow-md">
+                    <h3 class="text-gray-400 text-sm uppercase">Total Turns</h3>
+                    <p class="text-2xl font-bold" id="turns-count">-</p>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Data Tabs -->
+        <div class="mb-4 border-b border-gray-700">
+            <ul class="flex flex-wrap -mb-px" id="tab-buttons">
+                <li class="mr-2" data-collection="rooms">
+                    <a href="#" class="inline-block p-4 tab-active">Rooms</a>
+                </li>
+                <li class="mr-2" data-collection="players">
+                    <a href="#" class="inline-block p-4">Players</a>
+                </li>
+                <li class="mr-2" data-collection="messages">
+                    <a href="#" class="inline-block p-4">Messages</a>
+                </li>
+                <li class="mr-2" data-collection="turns">
+                    <a href="#" class="inline-block p-4">Turns</a>
+                </li>
+                <li class="mr-2" data-collection="questions">
+                    <a href="#" class="inline-block p-4">Questions</a>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Data Table Container -->
+        <div class="bg-gray-800 rounded-lg p-4">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold" id="table-title">Rooms</h2>
+                <div class="flex items-center">
+                    <div class="relative">
+                        <input type="text" id="filter-input" placeholder="Filter..." class="bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:outline-none focus:border-purple-500">
+                        <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="table-container" class="table-container">
+                <!-- Table will be inserted here -->
+                <div class="py-8 text-center text-gray-400">
+                    Loading data...
+                </div>
+            </div>
+        </div>
+        
+        <!-- Room Troubleshooter -->
+        <div class="bg-gray-800 rounded-lg p-4 mt-6">
+            <h2 class="text-xl font-bold mb-4">Room Connection Troubleshooter</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Room ID Lookup -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-3">Room ID Lookup</h3>
+                    <div class="flex space-x-2">
+                        <input type="text" id="room-id-input" placeholder="Enter room ID..." class="flex-1 bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:outline-none focus:border-purple-500">
+                        <button id="check-room-btn" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded" title="Check room ID">
+                            Check
+                        </button>
+                    </div>
+                    <div id="room-lookup-result" class="mt-3 p-3 bg-gray-700 rounded-lg" style="min-height: 100px;">
+                        <p class="text-gray-400">Enter a room ID to check if it exists</p>
+                    </div>
+                </div>
+                
+                <!-- Room Creation Tool -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-3">Create Test Room</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-gray-400 text-sm mb-1">Custom Room ID (optional)</label>
+                            <input type="text" id="custom-room-id" placeholder="Leave blank for auto-generated" class="w-full bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 text-sm mb-1">Host Nickname</label>
+                            <input type="text" id="host-nickname" value="TestHost" class="w-full bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:outline-none focus:border-purple-500" title="Enter a nickname for the test room host" placeholder="Enter host nickname">
+                        </div>
+                        <button id="create-test-room-btn" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded w-full" title="Create a test room">
+                            Create Test Room
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Room Testing API -->
+        <div class="bg-gray-800 rounded-lg p-4 mt-6">
+            <h2 class="text-xl font-bold mb-4">Room Testing API</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-gray-400 text-sm mb-1">Test Room Existence</label>
+                    <div class="flex space-x-2">
+                        <input type="text" id="api-room-id" placeholder="Enter room ID to test..." class="flex-1 bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:outline-none focus:border-purple-500" title="Room ID to test">
+                        <button id="api-check-room" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded" title="Test if room exists">
+                            Test Room
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">API Response</h3>
+                    <pre id="api-response" class="bg-gray-700 p-4 rounded-lg overflow-auto" style="max-height: 300px;">// Response will appear here</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question Management -->
+        <div class="bg-gray-800 rounded-lg p-4 mt-6">
+            <h2 class="text-xl font-bold mb-4">Question Management</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Add Questions -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-3">Add Questions</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-gray-400 text-sm mb-1">Category</label>
+                            <select id="question-category" class="w-full bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:outline-none focus:border-purple-500" title="Select question category">
+                                <option value="funny">Funny</option>
+                                <option value="romantic">Romantic</option>
+                                <option value="strip">Strip</option>
+                                <option value="18+">18+</option>
+                                <option value="emotional">Emotional</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 text-sm mb-1">Type</label>
+                            <select id="question-type" class="w-full bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:outline-none focus:border-purple-500" title="Select question type">
+                                <option value="truth">Truth</option>
+                                <option value="dare">Dare</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 text-sm mb-1">Questions (one per line)</label>
+                            <textarea id="question-text" rows="6" class="w-full bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:outline-none focus:border-purple-500" placeholder="Enter questions, one per line..."></textarea>
+                        </div>
+                        <button id="add-questions-btn" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded w-full">
+                            Add Questions
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Delete Questions -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-3">Delete Questions</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-gray-400 text-sm mb-1">Filter by Category</label>
+                            <select id="delete-category" class="w-full bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:outline-none focus:border-purple-500" title="Filter questions by category">
+                                <option value="">All Categories</option>
+                                <option value="funny">Funny</option>
+                                <option value="romantic">Romantic</option>
+                                <option value="strip">Strip</option>
+                                <option value="18+">18+</option>
+                                <option value="emotional">Emotional</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 text-sm mb-1">Filter by Type</label>
+                            <select id="delete-type" class="w-full bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:outline-none focus:border-purple-500" title="Filter questions by type">
+                                <option value="">All Types</option>
+                                <option value="truth">Truth</option>
+                                <option value="dare">Dare</option>
+                            </select>
+                        </div>
+                        <div id="questions-list" class="bg-gray-700 rounded-lg p-2 max-h-[300px] overflow-y-auto">
+                            <!-- Questions will be listed here -->
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="select-all-btn" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded flex-1">
+                                Select All
+                            </button>
+                            <button id="delete-selected-btn" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded flex-1">
+                                Delete Selected
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-gray-800 rounded-lg p-6 max-w-md w-full">
+            <h3 class="text-xl font-bold mb-4">Confirm Data Deletion</h3>
+            <p class="text-gray-300 mb-6">Are you sure you want to clear all data? This action cannot be undone and will remove all rooms, players, messages, and turns.</p>
+            <div class="flex justify-end space-x-4">
+                <button id="cancel-delete" class="bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded">
+                    Cancel
+                </button>
+                <button id="confirm-delete" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">
+                    Delete All Data
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Database JS -->
+    <script src="js/fileDatabase.js"></script>
+    
+    <!-- Developer Dashboard JS -->
+    <script>
+        // Current active collection
+        let activeCollection = 'rooms';
+        let filterText = '';
+        
+        // DOM elements
+        const tableContainer = document.getElementById('table-container');
+        const tableTitle = document.getElementById('table-title');
+        const tabButtons = document.getElementById('tab-buttons').querySelectorAll('li');
+        const filterInput = document.getElementById('filter-input');
+        const refreshBtn = document.getElementById('refresh-btn');
+        const exportBtn = document.getElementById('export-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const deleteModal = document.getElementById('delete-modal');
+        const cancelDeleteBtn = document.getElementById('cancel-delete');
+        const confirmDeleteBtn = document.getElementById('confirm-delete');
+        
+        // Counters
+        const activeRoomsCount = document.getElementById('active-rooms-count');
+        const activePlayersCount = document.getElementById('active-players-count');
+        const messagesCount = document.getElementById('messages-count');
+        const turnsCount = document.getElementById('turns-count');
+        
+        // Helper function to format dates
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleString();
+        }
+        
+        // Helper function to stringify and format JSON
+        function formatJSON(obj) {
+            return JSON.stringify(obj, null, 2);
+        }
+        
+        // Helper function to truncate text
+        function truncateText(text, maxLength = 50) {
+            if (!text) return '';
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+        
+        // Helper function to create cell content based on field and value
+        function createCellContent(collection, field, value) {
+            if (value === null || value === undefined) {
+                return '-';
+            }
+            
+            if (field === 'created_at' || field === 'joined_at' || field === 'timestamp' || field === 'completed_at') {
+                return formatDate(value);
+            }
+            
+            if (field === 'active' || field === 'is_host' || field === 'system' || field === 'completed') {
+                return value ? 'Yes' : 'No';
+            }
+            
+            if (Array.isArray(value)) {
+                return `<div class="json-view" title="${value.join(', ')}">${value.join(', ')}</div>`;
+            }
+            
+            if (typeof value === 'object') {
+                return `<div class="json-view" title="${formatJSON(value)}">${truncateText(formatJSON(value))}</div>`;
+            }
+            
+            if (typeof value === 'string' && value.length > 50) {
+                return `<div title="${value}">${truncateText(value)}</div>`;
+            }
+            
+            return value;
+        }
+        
+        // Function to render table for a collection
+        async function renderTable(collection) {
+            // Get data for collection
+            let data = Database.getAll(collection);
+            
+            // Apply filter if present
+            if (filterText) {
+                const searchTerm = filterText.toLowerCase();
+                data = data.filter(item => {
+                    return Object.values(item).some(value => {
+                        if (value === null || value === undefined) return false;
+                        return String(value).toLowerCase().includes(searchTerm);
+                    });
+                });
+            }
+            
+            // If no data, show message
+            if (data.length === 0) {
+                tableContainer.innerHTML = `
+                    <div class="py-8 text-center text-gray-400">
+                        No data found in ${collection} collection
+                    </div>
+                `;
+                return;
+            }
+            
+            // Get all unique fields from all items
+            const fields = new Set();
+            data.forEach(item => {
+                Object.keys(item).forEach(key => fields.add(key));
+            });
+            
+            // Convert set to array for table headers
+            const fieldArray = Array.from(fields);
+            
+            // Create table HTML
+            let tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            ${fieldArray.map(field => `<th>${field}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            // Add rows
+            data.forEach(item => {
+                tableHTML += '<tr>';
+                fieldArray.forEach(field => {
+                    const value = item[field];
+                    tableHTML += `<td>${createCellContent(collection, field, value)}</td>`;
+                });
+                tableHTML += '</tr>';
+            });
+            
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+            
+            // Update the container
+            tableContainer.innerHTML = tableHTML;
+        }
+        
+        // Function to update stats
+        async function updateStats() {
+            const rooms = Database.getAll('rooms');
+            const players = Database.getAll('players');
+            const messages = Database.getAll('messages');
+            const turns = Database.getAll('turns');
+            
+            const activeRooms = rooms.filter(room => room.active).length;
+            const activePlayers = players.filter(player => player.active).length;
+            
+            activeRoomsCount.textContent = activeRooms;
+            activePlayersCount.textContent = activePlayers;
+            messagesCount.textContent = messages.length;
+            turnsCount.textContent = turns.length;
+        }
+        
+        // Switch tab and render corresponding table
+        async function switchTab(collection) {
+            activeCollection = collection;
+            
+            // Update tab buttons
+            tabButtons.forEach(tab => {
+                const tabCollection = tab.getAttribute('data-collection');
+                const tabLink = tab.querySelector('a');
+                
+                if (tabCollection === collection) {
+                    tabLink.classList.add('tab-active');
+                } else {
+                    tabLink.classList.remove('tab-active');
+                }
+            });
+            
+            // Update title
+            tableTitle.textContent = collection.charAt(0).toUpperCase() + collection.slice(1);
+            
+            // Render table
+            await renderTable(collection);
+        }
+        
+        // Add event listeners to tab buttons
+        tabButtons.forEach(tab => {
+            tab.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const collection = tab.getAttribute('data-collection');
+                await switchTab(collection);
+            });
+        });
+        
+        // Filter input event
+        filterInput.addEventListener('input', async (e) => {
+            filterText = e.target.value;
+            await renderTable(activeCollection);
+        });
+        
+        // Refresh button event
+        refreshBtn.addEventListener('click', async () => {
+            // Reload the collections
+            for (const collection of Database.collections) {
+                await Database.loadCollection(collection);
+            }
+            
+            await updateStats();
+            await renderTable(activeCollection);
+        });
+        
+        // Export button event
+        exportBtn.addEventListener('click', async () => {
+            const allData = {};
+            
+            for (const collection of Database.collections) {
+                allData[collection] = Database.getAll(collection);
+            }
+            
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allData, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "daremate_data.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        });
+        
+        // Clear button event
+        clearBtn.addEventListener('click', () => {
+            deleteModal.classList.remove('hidden');
+        });
+        
+        // Cancel delete event
+        cancelDeleteBtn.addEventListener('click', () => {
+            deleteModal.classList.add('hidden');
+        });
+        
+        // Confirm delete event
+        confirmDeleteBtn.addEventListener('click', async () => {
+            for (const collection of Database.collections) {
+                await Database.clear(collection);
+            }
+            
+            // Re-initialize the database (add sample questions)
+            await Database.init();
+            
+            // Update UI
+            await updateStats();
+            await renderTable(activeCollection);
+            
+            // Hide modal
+            deleteModal.classList.add('hidden');
+        });
+        
+        // Set up room troubleshooter
+        function setupRoomTroubleshooter() {
+            const roomIdInput = document.getElementById('room-id-input');
+            const checkRoomBtn = document.getElementById('check-room-btn');
+            const roomLookupResult = document.getElementById('room-lookup-result');
+            const customRoomIdInput = document.getElementById('custom-room-id');
+            const hostNicknameInput = document.getElementById('host-nickname');
+            const createTestRoomBtn = document.getElementById('create-test-room-btn');
+            
+            // Check room button event
+            checkRoomBtn.addEventListener('click', () => {
+                const roomId = roomIdInput.value.trim().toUpperCase();
+                if (!roomId) {
+                    roomLookupResult.innerHTML = `<p class="text-yellow-500">Please enter a room ID</p>`;
+                    return;
+                }
+                
+                // Look up room
+                const rooms = Database.getBy('rooms', 'room_id', roomId);
+                
+                if (rooms.length === 0) {
+                    roomLookupResult.innerHTML = `
+                        <p class="text-red-500">Room not found</p>
+                        <p class="text-gray-400 text-sm mt-2">No room with ID "${roomId}" exists in the database.</p>
+                    `;
+                    return;
+                }
+                
+                // Room exists
+                const room = rooms[0];
+                const players = Database.getBy('players', 'room_id', roomId)
+                    .filter(player => player.active);
+                
+                roomLookupResult.innerHTML = `
+                    <p class="text-green-500">Room found!</p>
+                    <div class="mt-2 text-sm">
+                        <p><span class="text-gray-400">Room ID:</span> ${room.room_id}</p>
+                        <p><span class="text-gray-400">Type:</span> ${room.type}</p>
+                        <p><span class="text-gray-400">Host:</span> ${room.host_nickname}</p>
+                        <p><span class="text-gray-400">Active:</span> ${room.active ? 'Yes' : 'No'}</p>
+                        <p><span class="text-gray-400">Active Players:</span> ${players.length}</p>
+                        <p><span class="text-gray-400">Created:</span> ${formatDate(room.created_at)}</p>
+                    </div>
+                `;
+            });
+            
+            // Create test room button event
+            createTestRoomBtn.addEventListener('click', async () => {
+                const hostNickname = hostNicknameInput.value.trim() || 'TestHost';
+                let customRoomId = customRoomIdInput.value.trim().toUpperCase();
+                
+                // Validate custom room ID if provided
+                if (customRoomId) {
+                    // Make sure room ID is 6 characters and alphanumeric
+                    if (!/^[A-Z0-9]{6}$/.test(customRoomId)) {
+                        alert('Custom room ID must be 6 alphanumeric characters');
+                        return;
+                    }
+                    
+                    // Check if room ID already exists
+                    const existingRooms = Database.getBy('rooms', 'room_id', customRoomId);
+                    if (existingRooms.length > 0) {
+                        alert(`Room with ID "${customRoomId}" already exists`);
+                        return;
+                    }
+                } else {
+                    // Generate room ID
+                    customRoomId = Database.generateRoomId();
+                }
+                
+                // Create room
+                const room = await Database.add('rooms', {
+                    room_id: customRoomId,
+                    host_nickname: hostNickname,
+                    type: 'test',
+                    categories: ['funny', 'romantic'],
+                    created_at: new Date().toISOString(),
+                    active: true
+                });
+                
+                // Create host player
+                await Database.add('players', {
+                    room_id: customRoomId,
+                    nickname: hostNickname,
+                    is_host: true,
+                    joined_at: new Date().toISOString(),
+                    active: true
+                });
+                
+                // Update UI
+                await updateStats();
+                if (activeCollection === 'rooms') {
+                    await renderTable('rooms');
+                }
+                
+                // Show success message
+                alert(`Test room created successfully!\nRoom ID: ${customRoomId}`);
+                
+                // Auto-fill the room ID in the lookup field
+                roomIdInput.value = customRoomId;
+                checkRoomBtn.click();
+            });
+        }
+        
+        // Set up room API testing
+        function setupRoomApiTesting() {
+            const apiRoomIdInput = document.getElementById('api-room-id');
+            const apiCheckRoomBtn = document.getElementById('api-check-room');
+            const apiResponseEl = document.getElementById('api-response');
+            
+            apiCheckRoomBtn.addEventListener('click', async () => {
+                const roomId = apiRoomIdInput.value.trim().toUpperCase();
+                if (!roomId) {
+                    apiResponseEl.textContent = JSON.stringify({ error: 'Please enter a room ID' }, null, 2);
+                    return;
+                }
+                
+                apiResponseEl.textContent = 'Loading...';
+                
+                try {
+                    // Use the new checkRoom method
+                    const result = await Database.checkRoom(roomId);
+                    
+                    // Format the response nicely
+                    apiResponseEl.textContent = JSON.stringify(result, null, 2);
+                    
+                    // Update the room lookup result as well if it exists
+                    const roomLookupResult = document.getElementById('room-lookup-result');
+                    if (roomLookupResult && result.exists) {
+                        const room = result.room;
+                        const players = Database.getBy('players', 'room_id', roomId)
+                            .filter(player => player.active);
+                        
+                        roomLookupResult.innerHTML = `
+                            <p class="text-green-500">Room found!</p>
+                            <div class="mt-2 text-sm">
+                                <p><span class="text-gray-400">Room ID:</span> ${room.room_id}</p>
+                                <p><span class="text-gray-400">Type:</span> ${room.type}</p>
+                                <p><span class="text-gray-400">Host:</span> ${room.host_nickname}</p>
+                                <p><span class="text-gray-400">Active:</span> ${room.active ? 'Yes' : 'No'}</p>
+                                <p><span class="text-gray-400">Active Players:</span> ${players.length}</p>
+                                <p><span class="text-gray-400">Created:</span> ${formatDate(room.created_at)}</p>
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    console.error('Error testing room:', error);
+                    apiResponseEl.textContent = JSON.stringify({ 
+                        error: 'Error testing room', 
+                        message: error.message 
+                    }, null, 2);
+                }
+            });
+        }
+
+        // Set up question management
+        function setupQuestionManagement() {
+            const addQuestionsBtn = document.getElementById('add-questions-btn');
+            const selectAllBtn = document.getElementById('select-all-btn');
+            const deleteSelectedBtn = document.getElementById('delete-selected-btn');
+            const deleteCategory = document.getElementById('delete-category');
+            const deleteType = document.getElementById('delete-type');
+            const questionsList = document.getElementById('questions-list');
+
+            // Function to refresh questions list
+            async function refreshQuestionsList() {
+                const category = deleteCategory.value;
+                const type = deleteType.value;
+                const questions = Database.getAll('questions');
+                
+                // Filter questions based on selected category and type
+                const filteredQuestions = questions.filter(q => 
+                    (!category || q.category === category) &&
+                    (!type || q.type === type)
+                );
+
+                // Clear and rebuild questions list
+                questionsList.innerHTML = filteredQuestions.map(q => `
+                    <div class="flex items-center space-x-2 p-2 hover:bg-gray-600 rounded">
+                        <input type="checkbox" class="question-checkbox" data-id="${q.id}">
+                        <div class="flex-1">
+                            <div class="text-sm">${q.text}</div>
+                            <div class="text-xs text-gray-400">${q.category} - ${q.type}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Add questions button click handler
+            addQuestionsBtn.addEventListener('click', async () => {
+                const category = document.getElementById('question-category').value;
+                const type = document.getElementById('question-type').value;
+                const questionsText = document.getElementById('question-text').value;
+                
+                const questions = questionsText.split('\n')
+                    .map(text => text.trim())
+                    .filter(text => text.length > 0);
+                
+                if (questions.length === 0) {
+                    alert('Please enter at least one question');
+                    return;
+                }
+
+                try {
+                    for (const text of questions) {
+                        await Database.add('questions', {
+                            category,
+                            type,
+                            text
+                        });
+                    }
+
+                    // Clear textarea
+                    document.getElementById('question-text').value = '';
+                    
+                    // Refresh questions list and stats
+                    await refreshQuestionsList();
+                    await updateStats();
+                    
+                    // Show success message
+                    alert(`Successfully added ${questions.length} question(s)`);
+                } catch (error) {
+                    console.error('Error adding questions:', error);
+                    alert('Error adding questions. Please try again.');
+                }
+            });
+
+            // Select all button click handler
+            selectAllBtn.addEventListener('click', () => {
+                const checkboxes = questionsList.querySelectorAll('.question-checkbox');
+                const someUnchecked = Array.from(checkboxes).some(cb => !cb.checked);
+                checkboxes.forEach(cb => cb.checked = someUnchecked);
+            });
+
+            // Delete selected button click handler
+            deleteSelectedBtn.addEventListener('click', async () => {
+                const selectedIds = Array.from(questionsList.querySelectorAll('.question-checkbox:checked'))
+                    .map(cb => cb.dataset.id);
+                
+                if (selectedIds.length === 0) {
+                    alert('Please select at least one question to delete');
+                    return;
+                }
+
+                if (!confirm(`Are you sure you want to delete ${selectedIds.length} question(s)?`)) {
+                    return;
+                }
+
+                try {
+                    for (const id of selectedIds) {
+                        await Database.delete('questions', id);
+                    }
+
+                    // Refresh questions list and stats
+                    await refreshQuestionsList();
+                    await updateStats();
+                    
+                    // Show success message
+                    alert(`Successfully deleted ${selectedIds.length} question(s)`);
+                } catch (error) {
+                    console.error('Error deleting questions:', error);
+                    alert('Error deleting questions. Please try again.');
+                }
+            });
+
+            // Category/Type filter change handlers
+            deleteCategory.addEventListener('change', refreshQuestionsList);
+            deleteType.addEventListener('change', refreshQuestionsList);
+
+            // Initial load of questions
+            refreshQuestionsList();
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Initialize database
+            await Database.init();
+            
+            await updateStats();
+            await switchTab('rooms');
+            
+            // Room troubleshooter functionality
+            setupRoomTroubleshooter();
+            
+            // Room API testing functionality
+            setupRoomApiTesting();
+            
+            // Set up question management
+            setupQuestionManagement();
+        });
+    </script>
+</body>
+</html> 
